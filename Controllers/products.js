@@ -51,7 +51,7 @@ const getAllProductsStatic = async (req, res, next) => {
   try {
 
     const search = "ab";
-    const products = await Product.find({ })
+    const products = await Product.find({price :{$gt : 100} })
     .sort("name")
     .select("name price")
     .limit(10)
@@ -65,7 +65,7 @@ const getAllProductsStatic = async (req, res, next) => {
  
 const getAllProducts = async (req, res) => {
   try {
-    const { featured, company, name, sort, price,select} = req.query;
+    const { featured, company, name, sort, price,select,Numfilter,filters} = req.query;
     const queryObject = {};
  
     if (featured) {
@@ -113,6 +113,27 @@ const limit = Number(req.query.limit);
 const skip = (page-1) *limit;
 
 output = output.skip(skip).limit(limit);
+
+// ------less than or greater or equal --$gt $ lt $ eq-----
+
+if(Numfilter){
+  const OperatorMap ={
+    ">":"$gt",
+    ">=":"$gte",
+    "<":"$lt",
+    "<=":"$lte",
+  };
+  const reEx =/\b(<|>|>=|=|<=)\b/g;
+  const filters = Numfilter.replace(reEx,(match)=> `${OperatorMap[match]}`)
+  console.log(filters);
+};
+const iptions =["price","rating"];
+filters =filters.split(",").forEach((item)=>{
+const [field ,operaor,value] = item.split(".");
+ if(Options.includes(field)){
+  queryObject[field] ={[operaor]:Number(value)};
+ }
+});
 
 
 
